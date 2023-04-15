@@ -32,10 +32,6 @@ void Screen::initalize(GLFWwindow* window)
 	pyrLocX = 0.0f;
 	pyrLocY = 2.0f;
 	pyrLocZ = 0.0f;
-
-	//Shape shape, shapeOne;
-	//shape.cube();
-	//shapeOne.pyramid();
 }
 
 void Screen::display(GLFWwindow* window, double currentTime)
