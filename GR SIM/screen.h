@@ -7,32 +7,36 @@
 #include <glm/glm/gtc/type_ptr.hpp>
 #include <glm/glm/gtc/matrix_transform.hpp>
 #include <stdlib.h>
+#include <iostream>
+#include <stack>
 #include "shader.h"
 #include "shape.h"
-#include <stack>
-#include <iostream>
-#define numVAOs 1
-#define numVBOs 2
+#include "buffer.h"
 
 class Screen
 {
 public:
+
 	Screen();
 	void initalize(GLFWwindow* window);
 	void display(GLFWwindow* window, double currentTime);
 
 private:
-	GLuint renderingProgram, vao[numVAOs], vbo[numVBOs];
-	GLuint mvLoc, projLoc, moveLoc, timeFactorLoc, vLoc;
+
+	//allocate variables used in display() function so that they won’t need to be allocated during rendering
+	Buffer buffer;
+	GLuint renderingProgram;
+	Shape shapeOne, shapeTwo, shapeThree, shapeFour, shapeFive;
+	int width, height;
 
 	float cameraX, cameraY, cameraZ, aspect, //camera position
 		  cubeLocX, cubeLocY, cubeLocZ, //cube position
 		  pyrLocX, pyrLocY, pyrLocZ;	// pyramid position
 
-	int width, height;
 
-	glm::mat4 pMat, vMat, mMat, mvMat, tMat, rMat;
+	glm::mat4 pMat, vMat;
 	std::stack<glm::mat4> mvStack;
+
 };
 #endif 
 

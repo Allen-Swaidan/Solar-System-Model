@@ -4,11 +4,14 @@
 #include <fstream>
 #include <string>
 #include <cmath>
-#include<glm/glm/glm.hpp>
-#include <glm/glm/gtc/type_ptr.hpp>
-#include <glm/glm/gtc/matrix_transform.hpp>
 #include "shader.h"
 #include "screen.h"
+
+void window_reshape_callback(GLFWwindow* window, int newWidth, int newHeight) {
+	float aspect = (float)newWidth / (float)newHeight; // new width&height provided by the callback
+	glViewport(0, 0, newWidth, newHeight);			   // sets screen region associated with framebuffer
+	glm::mat4 pMat = glm::perspective(1.0472f, aspect, 0.1f, 1000.0f);
+}
 
 int main(void)
 {	
@@ -21,7 +24,7 @@ int main(void)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	
 	//creating window
-	GLFWwindow* window = glfwCreateWindow(800, 800, "Chapter2 - program1", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(800, 800, "General Relativity Simulation", NULL, NULL);
 	glfwMakeContextCurrent(window);
 	if (glewInit() != GLEW_OK) 
 	{ 
@@ -30,6 +33,7 @@ int main(void)
 	glfwSwapInterval(1);
 
 	Screen screen;
+	glfwSetWindowSizeCallback(window, window_reshape_callback);
 	screen.initalize(window);
 
 	while (!glfwWindowShouldClose(window))
