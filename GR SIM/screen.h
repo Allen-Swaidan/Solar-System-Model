@@ -27,11 +27,12 @@ public:
 	void setupVertices(void);
 	
 private:
-	Sphere mySphere;
 	//allocate variables used in display() function so that they won’t need to be allocated during rendering
 	Buffer buffer;
 	GLuint renderingProgram;
 	Shape shapeOne, shapeTwo, shapeThree, shapeFour, shapeFive;
+	Sphere sphereOne, sphereTwo, sphereThree, sphereFour, sphereFive;
+
 	int width, height;
 	GLuint mvLoc, projLoc;
 

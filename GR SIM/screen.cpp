@@ -28,8 +28,8 @@ void Screen::initalize(GLFWwindow* window)
 	renderingProgram = Shader::Instance()->linkProgram();
 	
 	cameraX = 0.0f;
-	cameraY = 2.0f;
-	cameraZ = 15.0f;
+	cameraY = 3.0f;
+	cameraZ = 45.0f;
 
 	cubeLocX = 0.0f;
 	cubeLocY = -2.0f;
@@ -52,15 +52,15 @@ void Screen::initalize(GLFWwindow* window)
 
 void Screen::setupVertices(void) 
 {
-	std::vector<int> ind = mySphere.getIndices();
-	std::vector<glm::vec3> vert = mySphere.getVertices();
-	std::vector<glm::vec2> tex = mySphere.getTexCoords();
-	std::vector<glm::vec3> norm = mySphere.getNormals();
+	std::vector<int> ind = sphereOne.getIndices();
+	std::vector<glm::vec3> vert = sphereOne.getVertices();
+	std::vector<glm::vec2> tex = sphereOne.getTexCoords();
+	std::vector<glm::vec3> norm = sphereOne.getNormals();
 	std::vector<float> pvalues; // vertex positions
 	std::vector<float> tvalues; // texture coordinates
 	std::vector<float> nvalues; // normal vectors
 
-	int numIndices = mySphere.getNumIndices();
+	int numIndices = sphereOne.getNumIndices();
 	for (int i = 0; i < numIndices; i++) 
 	{
 		pvalues.push_back((vert[ind[i]]).x);
@@ -104,7 +104,7 @@ void Screen::display(GLFWwindow* window, double currentTime)
 	glClear(GL_COLOR_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_LEQUAL);
-
+	
 	//loads the program onto the gpu
 	glUseProgram(renderingProgram);
 
@@ -115,21 +115,67 @@ void Screen::display(GLFWwindow* window, double currentTime)
 	Shader::Instance()->SendUniformData("proj_matrix", glm::value_ptr(pMat));
 
 	//Sphere!!!!!!!
-	mySphere;
+	//Sun
+	sphereOne;
 	setupVertices();
 
 	mvStack.push(mvStack.top());
 	mvStack.top() *= glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
 	mvStack.push(mvStack.top());
 	mvStack.top() *= glm::rotate(glm::mat4(1.0f), (float)currentTime, glm::vec3(0.0f, 1.0f, 0.0f));
+	mvStack.top() *= glm::scale(glm::mat4(1.0f), glm::vec3(5.0f, 5.0f, 5.0f));
 
 	Shader::Instance()->SendUniformData("mv_matrix", glm::value_ptr(mvStack.top()));
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(0);
-	glDrawArrays(GL_TRIANGLES, 0, mySphere.getNumIndices());
+	glDrawArrays(GL_TRIANGLES, 0, sphereOne.getNumIndices());
+	mvStack.pop();
+	mvStack.pop();
+	
+	//Earth
+	sphereTwo;
+	setupVertices();
+
+	mvStack.push(mvStack.top());
+	mvStack.top() *= glm::translate(glm::mat4(1.0f), glm::vec3(sin((float)currentTime) * 10.0f, 0.0f, cos((float)currentTime) * 10.0f));
+	mvStack.push(mvStack.top());
+	mvStack.top() *= glm::rotate(glm::mat4(1.0f), (float)currentTime, glm::vec3(0.0f, 1.0f, 0.0f));
+
+	Shader::Instance()->SendUniformData("mv_matrix", glm::value_ptr(mvStack.top()));
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(0);
+	glDrawArrays(GL_TRIANGLES, 0, sphereTwo.getNumIndices());
+	//mvStack.pop();
+	
+	//moon
+	sphereThree;
+	setupVertices();
+
+	mvStack.top() *= glm::translate(glm::mat4(1.0f), glm::vec3(sin((float)currentTime*2.0f) * 2.0f, 0.0f, cos((float)currentTime*2.0f) * 2.0f));
+	mvStack.top() *= glm::rotate(glm::mat4(1.0f), float(currentTime) * 2.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+	mvStack.top() *= glm::scale(glm::mat4(1.0f), glm::vec3(0.25f, 0.25f, 0.25f));
+
+	Shader::Instance()->SendUniformData("mv_matrix", glm::value_ptr(mvStack.top()));
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(0);
+	glDrawArrays(GL_TRIANGLES, 0, sphereThree.getNumIndices());
 	mvStack.pop();
 
+	sphereFour;
+	setupVertices();
 
+	mvStack.push(mvStack.top());
+	mvStack.top() *= glm::translate(glm::mat4(1.0f), glm::vec3(sin((float)currentTime/2) * 15.0f, 0.0f, cos((float)currentTime/2) * 15.0f));
+	mvStack.top() *= glm::rotate(glm::mat4(1.0f), float(currentTime), glm::vec3(5.0f, 5.0f, 5.0f));
+	mvStack.top() *= glm::scale(glm::mat4(1.0f), glm::vec3(2.0f, 2.0f, 2.0f));
+
+	Shader::Instance()->SendUniformData("mv_matrix", glm::value_ptr(mvStack.top()));
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(0);
+	glDrawArrays(GL_TRIANGLES, 0, sphereFour.getNumIndices());
+	mvStack.pop();
+	
 	/*
 	//motion of the prism == sun
 	mvStack.push(mvStack.top());
