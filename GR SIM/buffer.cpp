@@ -37,7 +37,6 @@ void Buffer::FillVBO(VBOType VBOType, GLsizeiptr buffersize, GLfloat* data, Fill
 
 	glBufferData(GL_ARRAY_BUFFER, buffersize, data, filltype);
 	glBindVertexArray(0);
-	
 }
 
 void Buffer::LinkBuffer(const std::string& attribute, VBOType VBOType, ComponentType componentType, DataType dataType)

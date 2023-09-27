@@ -8,6 +8,7 @@
 
 class Shape
 {
+
 public:
 	Shape();
 	void cube();

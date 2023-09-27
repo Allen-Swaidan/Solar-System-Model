@@ -74,3 +74,5 @@ void Shape::octahedron()
 	buffer.DestroyBuffer();
 }
 
+
+
