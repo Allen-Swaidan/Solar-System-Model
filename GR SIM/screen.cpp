@@ -15,6 +15,8 @@ Screen::Screen()
 	pyrLocX = 0.0f;
 	pyrLocY = 0.0f;
 	pyrLocZ = 0.0f;
+	xpos = 0;
+	ypos = 0;
 	pMat = glm::mat4();
 	vMat = glm::mat4();
 }
@@ -28,7 +30,7 @@ void Screen::initalize(GLFWwindow* window)
 	renderingProgram = Shader::Instance()->linkProgram();
 	
 	cameraX = 0.0f;
-	cameraY = 3.0f;
+	cameraY = 5.0f;
 	cameraZ = 45.0f;
 
 	cubeLocX = 0.0f;
@@ -97,6 +99,29 @@ void Screen::setupVertices(void)
 	buffer.DestroyBuffer();*/
 }
 
+static void cursor_position_callback(GLFWwindow * window, double xpos, double ypos)
+{
+	glfwGetCursorPos(window, &xpos, &ypos);
+	std::cout << xpos << " : " << ypos << std::endl;
+
+}
+
+//recording mouse position only when cursor is inside screen
+void cursorEnterCallBack(GLFWwindow *window, int entered)
+{
+	bool inside = entered;
+
+	if (inside == true)
+	{	
+		std::cout << "Entered Window" << std::endl;
+		glfwSetCursorPosCallback(window, cursor_position_callback);
+	}
+	else
+	{
+		std::cout << "Left Window" << std::endl;
+	}
+
+}
 
 void Screen::display(GLFWwindow* window, double currentTime)
 {
@@ -122,7 +147,7 @@ void Screen::display(GLFWwindow* window, double currentTime)
 	mvStack.push(mvStack.top());
 	mvStack.top() *= glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
 	mvStack.push(mvStack.top());
-	mvStack.top() *= glm::rotate(glm::mat4(1.0f), (float)currentTime, glm::vec3(0.0f, 1.0f, 0.0f));
+	mvStack.top() *= glm::rotate(glm::mat4(1.0f), (float)currentTime * 10.0f, glm::vec3(100.0f, 100.0f, 100.0f));
 	mvStack.top() *= glm::scale(glm::mat4(1.0f), glm::vec3(5.0f, 5.0f, 5.0f));
 
 	Shader::Instance()->SendUniformData("mv_matrix", glm::value_ptr(mvStack.top()));
@@ -161,11 +186,12 @@ void Screen::display(GLFWwindow* window, double currentTime)
 	glDrawArrays(GL_TRIANGLES, 0, sphereThree.getNumIndices());
 	mvStack.pop();
 
+	//bigger planet
 	sphereFour;
 	setupVertices();
 
 	mvStack.push(mvStack.top());
-	mvStack.top() *= glm::translate(glm::mat4(1.0f), glm::vec3(sin((float)currentTime/2) * 15.0f, 0.0f, cos((float)currentTime/2) * 15.0f));
+	mvStack.top() *= glm::translate(glm::mat4(1.0f), glm::vec3(sin((float)currentTime*10.0f) * 15.0f, 0.0f, cos((float)currentTime*10.0f) * 15.0f));
 	mvStack.top() *= glm::rotate(glm::mat4(1.0f), float(currentTime), glm::vec3(5.0f, 5.0f, 5.0f));
 	mvStack.top() *= glm::scale(glm::mat4(1.0f), glm::vec3(2.0f, 2.0f, 2.0f));
 
@@ -176,65 +202,35 @@ void Screen::display(GLFWwindow* window, double currentTime)
 	glDrawArrays(GL_TRIANGLES, 0, sphereFour.getNumIndices());
 	mvStack.pop();
 	
-	/*
-	//motion of the prism == sun
-	mvStack.push(mvStack.top());
-	mvStack.top() *= glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-	mvStack.push(mvStack.top());
-	mvStack.top() *= glm::rotate(glm::mat4(1.0f), (float)currentTime, glm::vec3(0.0f, 1.0f, 0.0f));
+	//if key input is detected, move the current position of the camera
 
-	Shader::Instance()->SendUniformData("mv_matrix", glm::value_ptr(mvStack.top()));
-	shapeOne.pyramid();
-	mvStack.pop();
+	int stateOne = glfwGetKey(window, GLFW_KEY_W);
+	int stateTwo = glfwGetKey(window, GLFW_KEY_A);
+	int stateThree = glfwGetKey(window, GLFW_KEY_S);
+	int stateFour = glfwGetKey(window, GLFW_KEY_D);
 
-	//motion of the big cube == planet
-	mvStack.push(mvStack.top());
-	mvStack.top() *= glm::translate(glm::mat4(1.0f), glm::vec3(sin((float)currentTime) * 4.0f, 0.0f, cos((float)currentTime) * 4.0f));
-	mvStack.push(mvStack.top());
-	mvStack.top() *= glm::rotate(glm::mat4(1.0f), (float)currentTime, glm::vec3(0.0f, 1.0f, 0.0f));
+	if (stateOne == GLFW_PRESS)
+	{
+		cameraZ -= 1.0f;
+	}
+	if (stateTwo == GLFW_PRESS)
+	{
+		cameraX -= 1.0f;
+	}
+	if (stateThree == GLFW_PRESS)
+	{
+		cameraZ += 1.0f;
+	}
+	if (stateFour == GLFW_PRESS)
+	{
+		cameraX += 1.0f;
+	}
 
-	Shader::Instance()->SendUniformData("mv_matrix", glm::value_ptr(mvStack.top()));
-	shapeTwo.cube();
-	mvStack.pop();
+	//glfwGetCursorPos(window, &xpos, &ypos);
+	//glfwSetCursorPosCallback(window, cursor_position_callback);
+	glfwSetCursorEnterCallback(window, cursorEnterCallBack);
 
-	//motion of the smaller cube == moon
-	mvStack.push(mvStack.top());
-	mvStack.top() *= glm::translate(glm::mat4(1.0f), glm::vec3(sin((float)currentTime) * 2.0f, 0.0f, -cos((float)currentTime) * 2.0f));
-	mvStack.top() *= glm::rotate(glm::mat4(1.0f), (float)currentTime, glm::vec3(0.0, 0.0, 1.0));
-	mvStack.top() *= glm::scale(glm::mat4(1.0f), glm::vec3(0.25f, 0.25f, 0.25f));
 
-	Shader::Instance()->SendUniformData("mv_matrix", glm::value_ptr(mvStack.top()));
-	shapeThree.cube();
-	mvStack.pop();
-
-	//bigger cube thats further away
-	mvStack.push(mvStack.top());
-	mvStack.top() *= glm::translate(glm::mat4(1.0f), glm::vec3(sin((float)currentTime) * 5.0f, 0.0f, cos((float)currentTime) * 5.0f));
-	mvStack.push(mvStack.top());
-	mvStack.top() *= glm::rotate(glm::mat4(1.0f), (float)currentTime, glm::vec3(0.0f, 1.0f, 0.0f));
-
-	Shader::Instance()->SendUniformData("mv_matrix", glm::value_ptr(mvStack.top()));
-	shapeFour.cube();
-	mvStack.pop();
-
-	//octahedron
-	mvStack.push(mvStack.top());
-	mvStack.top() *= glm::translate(glm::mat4(1.0f), glm::vec3(sin((float)currentTime) * 5.0f, 0.0f, cos((float)currentTime) * 5.0f));
-	mvStack.push(mvStack.top());
-	mvStack.top() *= glm::rotate(glm::mat4(1.0f), (float)currentTime, glm::vec3(0.0f, 1.0f, 0.0f));
-	mvStack.top() *= glm::scale(glm::mat4(1.0f), glm::vec3(2.0f, 2.0f, 2.0f));
-
-	Shader::Instance()->SendUniformData("mv_matrix", glm::value_ptr(mvStack.top()));
-	shapeFive.octahedron();
-	mvStack.pop();
-
-	mvStack.pop();
-	mvStack.pop();
-	mvStack.pop();
-	mvStack.pop();
-
-	mvStack.pop();
-	*/
 }
 
 

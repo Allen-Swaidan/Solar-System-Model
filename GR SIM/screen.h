@@ -17,6 +17,11 @@
 #define numVAOs 1
 #define numVBOs 2
 
+#define GLFW_KEY_W 87
+#define GLFW_KEY_A 65
+#define GLFW_KEY_S 83
+#define GLFW_KEY_D 68
+
 class Screen
 {
 public:
@@ -25,7 +30,7 @@ public:
 	void initalize(GLFWwindow* window);
 	void display(GLFWwindow* window, double currentTime);
 	void setupVertices(void);
-	
+
 private:
 	//allocate variables used in display() function so that they won’t need to be allocated during rendering
 	Buffer buffer;
@@ -35,7 +40,7 @@ private:
 
 	int width, height;
 	GLuint mvLoc, projLoc;
-
+	double xpos, ypos;
 	float cameraX, cameraY, cameraZ, aspect, //camera position
 		  cubeLocX, cubeLocY, cubeLocZ, //cube position
 		  pyrLocX, pyrLocY, pyrLocZ,
